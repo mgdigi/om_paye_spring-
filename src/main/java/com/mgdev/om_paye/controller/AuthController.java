@@ -1,21 +1,29 @@
 package com.mgdev.om_paye.controller;
 
-import com.mgdev.om_paye.security.JwtService;
-import com.mgdev.om_paye.dto.request.LoginRequestdto;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.mgdev.om_paye.dto.request.LoginRequestDto;
 import com.mgdev.om_paye.dto.response.AuthResponse;
 import com.mgdev.om_paye.entity.User;
 import com.mgdev.om_paye.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import com.mgdev.om_paye.security.JwtService;
 
-import java.util.HashMap;
-import java.util.Map;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentification", description = "Endpoints pour l'authentification et la gestion des tokens")
 public class AuthController {
 
     private final UserRepository userRepository;
@@ -23,7 +31,8 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequestdto request) {
+    @Operation(summary = "Connexion utilisateur", description = "Authentifie un utilisateur et retourne les tokens JWT")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequestDto request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
 
@@ -46,6 +55,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @Operation(summary = "Rafraîchir le token", description = "Génère un nouveau token d'accès à partir du refresh token")
     public ResponseEntity<AuthResponse> refresh(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");
         String username = jwtService.extractUsername(refreshToken);

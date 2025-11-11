@@ -23,7 +23,7 @@ public class CompteCreatedEventListener {
         try {
             log.info("Traitement de la création du compte pour l'utilisateur: {}", event.getCompte().getUser().getEmail());
 
-            // Envoyer un OTP de vérification par email
+       
             otpService.sendOtp(event.getCompte().getUser().getEmail());
 
             log.info("OTP envoyé avec succès pour le compte: {}", event.getCompte().getNumeroCompte());

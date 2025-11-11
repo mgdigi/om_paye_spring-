@@ -6,6 +6,7 @@ import com.mgdev.om_paye.dto.request.PaiementRequestDto;
 import com.mgdev.om_paye.dto.request.TransfertRequestDto;
 import com.mgdev.om_paye.entity.Compte;
 import com.mgdev.om_paye.repository.CompteRepository;
+import com.mgdev.om_paye.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TransactionValidator {
     private final CompteRepository compteRepository;
+    private final UserRepository userRepository;
 
     public void validateTransfert(TransfertRequestDto request) {
         
@@ -42,17 +44,20 @@ public class TransactionValidator {
     }
 
     public void validatePaiement(PaiementRequestDto request) {
-      
+
         Compte compteClient = compteRepository.findByNumeroCompte(request.getNumeroCompteClient())
             .orElseThrow(() -> new IllegalArgumentException("Compte client introuvable"));
 
-       
+
         if (compteClient.getSolde().compareTo(request.getMontant()) < 0) {
             throw new IllegalArgumentException("Solde insuffisant pour effectuer le paiement");
         }
 
-        
-        boolean marchandExists = compteRepository.existsByCodeMarchand(request.getCodeMarchand());
+
+        boolean marchandExists = userRepository.findAll().stream()
+                .filter(user -> user instanceof com.mgdev.om_paye.entity.Marchand)
+                .map(user -> (com.mgdev.om_paye.entity.Marchand) user)
+                .anyMatch(m -> request.getCodeMarchand().equals(m.getCodeMarchand()));
         if (!marchandExists) {
             throw new IllegalArgumentException("Marchand introuvable");
         }

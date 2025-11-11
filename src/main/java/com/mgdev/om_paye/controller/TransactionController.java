@@ -18,18 +18,21 @@ import com.mgdev.om_paye.dto.request.TransfertRequestDto;
 import com.mgdev.om_paye.dto.response.TransactionResponseDto;
 import com.mgdev.om_paye.service.implementation.TransactionService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
-
+@Tag(name = "Transactions", description = "Gestion des transactions (transferts et paiements)")
 public class TransactionController {
 
     private final TransactionService transactionService;
 
     @PostMapping("/transfert")
     @ApiResponse(messageKey = "transaction.transfert.created")
+    @Operation(summary = "Effectuer un transfert", description = "Transfère de l'argent d'un compte à un autre")
     public ResponseEntity<TransactionResponseDto> effectuerTransfert(
             @RequestBody TransfertRequestDto request) {
         TransactionResponseDto response = transactionService.effectuerTransfert(request);
@@ -38,6 +41,7 @@ public class TransactionController {
 
     @PostMapping("/paiement")
     @ApiResponse(messageKey = "transaction.paiement.created")
+    @Operation(summary = "Effectuer un paiement", description = "Effectue un paiement à un marchand")
     public ResponseEntity<TransactionResponseDto> effectuerPaiement(
             @RequestBody PaiementRequestDto request) {
         TransactionResponseDto response = transactionService.effectuerPaiement(request);
@@ -46,6 +50,7 @@ public class TransactionController {
 
     @GetMapping("/compte/{compteId}")
     @ApiResponse(messageKey = "transactions.retrieved")
+    @Operation(summary = "Récupérer les transactions d'un compte", description = "Retourne l'historique des transactions d'un compte")
     public ResponseEntity<List<TransactionResponseDto>> getTransactionsByCompte(
             @PathVariable UUID compteId) {
         List<TransactionResponseDto> transactions =

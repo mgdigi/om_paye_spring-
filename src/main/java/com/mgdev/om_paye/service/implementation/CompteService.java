@@ -39,7 +39,8 @@ public class CompteService {
     private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     public CompteResponseDto createCompte(CompteRequestDto request) {
-        // Validation des données d'entrée
+     
+
         compteValidator.validateCompte(request);
 
         User user;
@@ -79,7 +80,7 @@ public class CompteService {
 
         Compte savedCompte = compteRepository.save(compte);
 
-        // Publier l'événement de création du compte
+      
         eventPublisher.publishEvent(new CompteCreatedEvent(this, savedCompte));
 
         return compteMapper.toDto(savedCompte);
@@ -123,4 +124,5 @@ public class CompteService {
         dto.setSolde(calculateSolde(compte.getId()));
         return dto;
     }
+    
 }

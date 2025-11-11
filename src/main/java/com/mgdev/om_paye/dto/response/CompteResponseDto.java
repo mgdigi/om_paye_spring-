@@ -1,15 +1,16 @@
 package com.mgdev.om_paye.dto.response;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
 import com.mgdev.om_paye.enums.CompteStatus;
 import com.mgdev.om_paye.enums.TypeCompte;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -20,7 +21,6 @@ public class CompteResponseDto {
     private String numeroCompte;
     private String titulaireCompte;
     private BigDecimal solde;  
-    private String codeMarchand;  
     private TypeCompte typeCompte;
     private CompteStatus status;
     private UUID userId;

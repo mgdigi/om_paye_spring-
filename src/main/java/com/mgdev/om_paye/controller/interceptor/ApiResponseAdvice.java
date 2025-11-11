@@ -22,7 +22,13 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-       
+        // Ne pas appliquer la transformation pour les endpoints Swagger/OpenAPI
+        if (returnType.getContainingClass() != null &&
+            returnType.getContainingClass().getPackageName() != null &&
+            returnType.getContainingClass().getPackageName().startsWith("org.springdoc")) {
+            return false;
+        }
+
         return !returnType.getParameterType().equals(com.mgdev.om_paye.dto.response.ApiResponse.class);
     }
 
@@ -39,8 +45,8 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
     
         ApiResponse annotation = returnType.getMethodAnnotation(ApiResponse.class);
         if (annotation != null && annotation.wrap()) {
-           
-            String message = messageSource.getMessage(annotation.messageKey(), null, Locale.getDefault());
+
+            String message = messageSource.getMessage(annotation.messageKey(), null, "Opération réussie", Locale.getDefault());
 
             return com.mgdev.om_paye.dto.response.ApiResponse.builder()
                     .succes(true)
@@ -49,7 +55,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
                     .build();
         }
 
-       
+
         String defaultMessage = messageSource.getMessage("success.default", null, "Opération réussie", Locale.getDefault());
         return com.mgdev.om_paye.dto.response.ApiResponse.builder()
                 .succes(true)

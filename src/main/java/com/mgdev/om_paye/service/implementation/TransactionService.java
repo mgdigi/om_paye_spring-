@@ -63,14 +63,27 @@ public class TransactionService {
     }
 
     public TransactionResponseDto effectuerPaiement(PaiementRequestDto request) {
-        // Validation des données d'entrée
+       
         transactionValidator.validatePaiement(request);
 
         Compte compteClient = compteRepository.findByNumeroCompte(request.getNumeroCompteClient())
                 .orElseThrow(() -> new IllegalArgumentException("Compte client non trouvé"));
 
-        Compte compteMarchand = compteRepository.findByCodeMarchand(request.getCodeMarchand())
+        // Recherche du marchand par codeMarchand dans la table User (Marchand)
+        // Pour l'instant, on utilise une approche simple - on peut améliorer avec une requête personnalisée
+        User marchand = userRepository.findAll().stream()
+                .filter(user -> user instanceof com.mgdev.om_paye.entity.Marchand)
+                .map(user -> (com.mgdev.om_paye.entity.Marchand) user)
+                .filter(m -> request.getCodeMarchand().equals(m.getCodeMarchand()))
+                .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Code marchand invalide"));
+
+        // Récupération du compte du marchand (premier compte trouvé)
+        List<Compte> comptesMarchand = compteRepository.findByUser(marchand);
+        if (comptesMarchand.isEmpty()) {
+            throw new IllegalArgumentException("Le marchand n'a pas de compte associé");
+        }
+        Compte compteMarchand = comptesMarchand.get(0);
 
         BigDecimal soldeActuel = compteService.calculateSolde(compteClient.getId());
         if (soldeActuel.compareTo(request.getMontant()) < 0) {

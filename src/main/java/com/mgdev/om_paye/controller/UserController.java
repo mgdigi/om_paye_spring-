@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Tag(name = "Utilisateurs", description = "Gestion des utilisateurs (Admin, Client, Marchand)")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
     private final UserService userService;

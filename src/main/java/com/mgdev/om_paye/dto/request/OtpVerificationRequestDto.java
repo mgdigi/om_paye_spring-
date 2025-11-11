@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class OtpVerificationRequestDto {
 
-    private String email;
+    private String phoneNumber;
     private String code;
 }

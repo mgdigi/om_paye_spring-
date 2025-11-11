@@ -63,7 +63,7 @@ public class CompteService {
                     .phoneNumber(request.getPhoneNumber())
                     .password(request.getPassword())
                     .role(UserRole.CLIENT)
-                    .status(UserStatus.ACTIVE)
+                    .status(UserStatus.PENDING) 
                     .build();
             user = userRepository.save(user);
         }
@@ -75,7 +75,7 @@ public class CompteService {
         compte.setTitulaireCompte(user.getName());
         compte.setSolde(BigDecimal.ZERO);
         compte.setTypeCompte(typeCompte);
-        compte.setStatus(CompteStatus.ACTIVE);
+        compte.setStatus(CompteStatus.PENDING);
         compte.setUser(user);
 
         Compte savedCompte = compteRepository.save(compte);

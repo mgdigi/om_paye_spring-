@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
 @Tag(name = "Transactions", description = "Gestion des transactions (transferts et paiements)")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -49,7 +50,6 @@ public class TransactionController {
     }
 
     @GetMapping("/compte/{compteId}")
-    @ApiResponse(messageKey = "transactions.retrieved")
     @Operation(summary = "Récupérer les transactions d'un compte", description = "Retourne l'historique des transactions d'un compte")
     public ResponseEntity<List<TransactionResponseDto>> getTransactionsByCompte(
             @PathVariable UUID compteId) {

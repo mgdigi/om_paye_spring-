@@ -1,5 +1,6 @@
 package com.mgdev.om_paye.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/comptes")
 @RequiredArgsConstructor
 @Tag(name = "Comptes", description = "Gestion des comptes bancaires")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class CompteController {
 
     private final CompteService compteService;
@@ -59,5 +61,12 @@ public class CompteController {
     public ResponseEntity<List<CompteResponseDto>> getComptesByUserId(@PathVariable UUID userId) {
         List<CompteResponseDto> comptes = compteService.getComptesByUserId(userId);
         return ResponseEntity.ok(comptes);
+    }
+
+    @GetMapping("/solde/{compteId}")
+    @Operation(summary = "Consulter le solde d'un compte", description = "Retourne le solde actuel d'un compte spécifique")
+    public ResponseEntity<BigDecimal> getSolde(@PathVariable UUID compteId) {
+        BigDecimal solde = compteService.calculateSolde(compteId);
+        return ResponseEntity.ok(solde);
     }
 }

@@ -48,8 +48,10 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 AuthResponse.builder()
-                        .accessToken(accessToken)
+                        .token(accessToken)
                         .refreshToken(refreshToken)
+                        .userId(user.getId())
+                        .role(user.getRole())
                         .build()
         );
     }
@@ -68,7 +70,7 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 AuthResponse.builder()
-                        .accessToken(newAccessToken)
+                        .token(newAccessToken)
                         .refreshToken(refreshToken)
                         .build()
         );

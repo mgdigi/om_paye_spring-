@@ -22,10 +22,27 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        // Ne pas appliquer la transformation pour les endpoints Swagger/OpenAPI
         if (returnType.getContainingClass() != null &&
             returnType.getContainingClass().getPackageName() != null &&
             returnType.getContainingClass().getPackageName().startsWith("org.springdoc")) {
+            return false;
+        }
+
+        if (returnType.getParameterType().equals(com.mgdev.om_paye.dto.response.AuthResponse.class)) {
+            return false;
+        }
+
+        Class<?> returnTypeClass = returnType.getParameterType();
+        if (returnTypeClass.isPrimitive() ||
+            returnTypeClass.equals(String.class) ||
+            returnTypeClass.equals(Integer.class) ||
+            returnTypeClass.equals(Long.class) ||
+            returnTypeClass.equals(Double.class) ||
+            returnTypeClass.equals(Float.class) ||
+            returnTypeClass.equals(Boolean.class) ||
+            returnTypeClass.equals(java.math.BigDecimal.class) ||
+            returnTypeClass.equals(java.util.List.class) ||
+            returnTypeClass.equals(java.util.Map.class)) {
             return false;
         }
 

@@ -50,15 +50,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configure(http)) 
+            .cors(cors -> cors.configure(http))
             .authorizeHttpRequests(auth -> auth
-               
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/otp/**").permitAll()
                 .requestMatchers("/api/users/**").permitAll()
                 .requestMatchers("/api/comptes/**").permitAll()
                 .requestMatchers("/api/transactions/**").permitAll()
-                .requestMatchers("/api/otp/**").permitAll()
-               
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

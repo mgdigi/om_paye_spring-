@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dpg-d3t28em3jp1c73a67vcg-a.oregon-postgres.render.com:5432/om_pay
+    username: ${DB_USERNAME:postgrs_laravel_user}
+    password: ${DB_PASSWORD:XETg5QKcVQrtQULxpzwYWqpmXzKLyICw}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate 
+    show-sql: false
+    properties:
+      hibernate: 
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+    time-zone: Africa/Dakar
+
+# logging:
+#   level:
+#     com.mgdev.om_paye: WARN
+#     org.springframework: WARN
+
+server:
+  port: ${PORT:5010}
+
+# management:
+#   endpoints:
+#     web:
+#       exposure:
+#         include: health,info,metrics
+#   endpoint:
+#     health:
+#       show-details: never

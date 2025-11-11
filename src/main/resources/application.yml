@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: om_paye
+  profiles:
+    active: dev
+  messages:
+    basename: messages
+    encoding: UTF-8
+
+server:
+  port: 5009
+ 
+# logging:
+#   level:
+#     com.mgdev.om_paye: INFO
+#   pattern:
+#     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    

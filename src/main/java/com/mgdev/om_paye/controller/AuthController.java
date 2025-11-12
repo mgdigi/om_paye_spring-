@@ -33,6 +33,7 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Connexion utilisateur", description = "Authentifie un utilisateur et retourne les tokens JWT")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequestDto request) {
+
         User user;
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
          
@@ -45,6 +46,10 @@ public class AuthController {
         } else {
             throw new IllegalArgumentException("Email ou numéro de téléphone requis");
         }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Mot de passe invalide");

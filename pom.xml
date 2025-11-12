@@ -120,6 +120,7 @@
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.7.0</version>
+
 		</dependency>
 
 		<!-- SLF4J Logger -->
@@ -130,6 +131,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
+
 		</dependency>
 
 	</dependencies>

@@ -46,7 +46,11 @@ public class UserSeeder implements CommandLineRunner {
 
       
         List<Client> clients = Arrays.asList(
+
             createClient("Client Test 2", "seydamariama206@gmail.com", "2222222222222", "784567890", "Thiès, Centre"),
+
+            createClient("Client Test 2", "seydamariama206@gmail.com", "2222222222222", "765436789", "Thiès, Centre"),
+
             createClient("Client Test 3", "ndiayeseydinamohamed43@gmail.com", "3333333333333", "785678901", "Saint-Louis, Centre")
         );
 

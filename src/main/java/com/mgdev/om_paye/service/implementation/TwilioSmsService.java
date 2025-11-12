@@ -45,8 +45,9 @@ public class TwilioSmsService implements SmsService {
             log.info("OTP SMS sent successfully to {} with SID: {}", phoneNumber, message.getSid());
         } catch (Exception e) {
             log.error("Failed to send OTP SMS to {}: {}", phoneNumber, e.getMessage(), e);
-            // Ne pas lancer d'exception pour ne pas bloquer la création du compte
-            // L'OTP sera affiché dans les logs du service OtpService
+
+            throw new RuntimeException("Erreur lors de l'envoi du SMS OTP", e);
+
         }
     }
 

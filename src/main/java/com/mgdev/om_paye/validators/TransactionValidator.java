@@ -54,6 +54,7 @@ public class TransactionValidator {
 
     public void validatePaiement(PaiementRequestDto request) {
 
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userPhone = authentication.getName();
         User userClient = userRepository.findByPhoneNumber(userPhone)
@@ -67,9 +68,16 @@ public class TransactionValidator {
         Compte compteClient = comptesClient.get(0);
 
         
+
+        Compte compteClient = compteRepository.findByNumeroCompte(request.getNumeroCompteClient())
+            .orElseThrow(() -> new IllegalArgumentException("Compte client introuvable"));
+
+
+
         if (compteClient.getSolde().compareTo(request.getMontant()) < 0) {
             throw new IllegalArgumentException("Solde insuffisant pour effectuer le paiement");
         }
+
 
       
         boolean marchandExists = userRepository.findAll().stream()
@@ -79,6 +87,13 @@ public class TransactionValidator {
                 userRepository.findByPhoneNumber(request.getDestinataireIdentifiant())
                     .filter(user -> user instanceof com.mgdev.om_paye.entity.Marchand)
                     .isPresent();
+
+
+
+        boolean marchandExists = userRepository.findAll().stream()
+                .filter(user -> user instanceof com.mgdev.om_paye.entity.Marchand)
+                .map(user -> (com.mgdev.om_paye.entity.Marchand) user)
+                .anyMatch(m -> request.getCodeMarchand().equals(m.getCodeMarchand()));
 
         if (!marchandExists) {
             throw new IllegalArgumentException("Marchand introuvable");

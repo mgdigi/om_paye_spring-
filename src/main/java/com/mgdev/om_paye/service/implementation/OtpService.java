@@ -36,6 +36,12 @@ public class OtpService {
 
         logger.info("OTP généré pour le numéro {}: {}", phoneNumber, otpCode);
 
+
+
+        String otpCode = generateOtpCode();
+
+
+
         OtpCode otp = OtpCode.builder()
                 .phoneNumber(phoneNumber)
                 .code(otpCode)

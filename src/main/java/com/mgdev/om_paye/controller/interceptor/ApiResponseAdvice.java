@@ -30,10 +30,12 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
         }
 
 
+
         if (returnType.getContainingClass() != null &&
             returnType.getContainingClass().getName().equals("com.mgdev.om_paye.controller.OtpController")) {
             return false;
         }
+
 
 
         if (returnType.getParameterType().equals(com.mgdev.om_paye.dto.response.AuthResponse.class)) {
@@ -74,11 +76,19 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
             String message = messageSource.getMessage(annotation.messageKey(), null, "Opération réussie", Locale.getDefault());
 
+
             com.mgdev.om_paye.dto.response.ApiResponse<Object> apiResponse = new com.mgdev.om_paye.dto.response.ApiResponse<>();
             apiResponse.setSucces(true);
             apiResponse.setMessage(message);
             apiResponse.setData(body);
             return apiResponse;
+
+            return com.mgdev.om_paye.dto.response.ApiResponse.builder()
+                    .succes(true)
+                    .message(message)
+                    .data(body)
+                    .build();
+
         }
 
 

@@ -34,8 +34,10 @@ import lombok.RequiredArgsConstructor;
 public class CompteController {
 
     private final CompteService compteService;
+
     private final UserRepository userRepository;
     private final CompteRepository compteRepository;
+
 
     @PostMapping
     @ApiResponse(messageKey = "compte.created")
@@ -44,6 +46,7 @@ public class CompteController {
         CompteResponseDto response = compteService.createCompte(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
 
     // @GetMapping("/{id}")
     // @ApiResponse(messageKey = "compte.retrieved")
@@ -88,6 +91,37 @@ public class CompteController {
         Compte compte = comptes.get(0);
 
         BigDecimal solde = compteService.calculateSolde(compte.getId());
+        return ResponseEntity.ok(solde);
+
+    @GetMapping("/{id}")
+    @ApiResponse(messageKey = "compte.retrieved")
+    @Operation(summary = "Récupérer un compte par ID", description = "Retourne les détails d'un compte spécifique")
+    public ResponseEntity<CompteResponseDto> getCompteById(@PathVariable UUID id) {
+        CompteResponseDto response = compteService.getCompteById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/numero/{numeroCompte}")
+    @ApiResponse(messageKey = "compte.retrieved")
+    @Operation(summary = "Récupérer un compte par numéro", description = "Retourne les détails d'un compte via son numéro")
+    public ResponseEntity<CompteResponseDto> getCompteByNumero(@PathVariable String numeroCompte) {
+        CompteResponseDto response = compteService.getCompteByNumero(numeroCompte);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user/{userId}")
+    @ApiResponse(messageKey = "comptes.retrieved")
+    @Operation(summary = "Récupérer les comptes d'un utilisateur", description = "Retourne tous les comptes d'un utilisateur spécifique")
+    public ResponseEntity<List<CompteResponseDto>> getComptesByUserId(@PathVariable UUID userId) {
+        List<CompteResponseDto> comptes = compteService.getComptesByUserId(userId);
+        return ResponseEntity.ok(comptes);
+
+    }
+
+    @GetMapping("/solde/{compteId}")
+    @Operation(summary = "Consulter le solde d'un compte", description = "Retourne le solde actuel d'un compte spécifique")
+    public ResponseEntity<BigDecimal> getSolde(@PathVariable UUID compteId) {
+        BigDecimal solde = compteService.calculateSolde(compteId);
         return ResponseEntity.ok(solde);
     }
 }

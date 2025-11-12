@@ -16,6 +16,7 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
+
     private static String SECRET_KEY;
 
     private static long EXPIRATION_TIME;
@@ -36,6 +37,16 @@ public class JwtService {
     public void setRefreshExpirationTime(long refreshExpirationTime) {
         REFRESH_EXPIRATION_TIME = refreshExpirationTime;
     }
+
+    @Value("${JWT_SECRET}")
+    private static  String SECRET_KEY;
+
+    @Value("${EXPIRATION}")
+    private static  long EXPIRATION_TIME; 
+
+    @Value("${EXPIRATION_REFRESH}")
+    private static  long REFRESH_EXPIRATION_TIME; 
+
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

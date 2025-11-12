@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class OtpService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OtpService.class);
+
     private final OtpCodeRepository otpCodeRepository;
     private final EmailService emailService;
     private final SmsService smsService;
@@ -30,8 +32,14 @@ public class OtpService {
 
         otpCodeRepository.markAllAsUsedByPhoneNumber(phoneNumber);
 
+        String otpCode = generateOtpCode();
+
+        logger.info("OTP généré pour le numéro {}: {}", phoneNumber, otpCode);
+
+
 
         String otpCode = generateOtpCode();
+
 
 
         OtpCode otp = OtpCode.builder()

@@ -22,15 +22,26 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+
         if (returnType.getContainingClass() != null &&
             returnType.getContainingClass().getPackageName() != null &&
             returnType.getContainingClass().getPackageName().startsWith("org.springdoc")) {
             return false;
         }
 
+
+
+        if (returnType.getContainingClass() != null &&
+            returnType.getContainingClass().getName().equals("com.mgdev.om_paye.controller.OtpController")) {
+            return false;
+        }
+
+
+
         if (returnType.getParameterType().equals(com.mgdev.om_paye.dto.response.AuthResponse.class)) {
             return false;
         }
+
 
         Class<?> returnTypeClass = returnType.getParameterType();
         if (returnTypeClass.isPrimitive() ||
@@ -54,30 +65,39 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
 
-    
+
         if (body instanceof com.mgdev.om_paye.dto.response.ApiResponse) {
             return body;
         }
 
-    
+
         ApiResponse annotation = returnType.getMethodAnnotation(ApiResponse.class);
         if (annotation != null && annotation.wrap()) {
 
             String message = messageSource.getMessage(annotation.messageKey(), null, "Opération réussie", Locale.getDefault());
+
+
+            com.mgdev.om_paye.dto.response.ApiResponse<Object> apiResponse = new com.mgdev.om_paye.dto.response.ApiResponse<>();
+            apiResponse.setSucces(true);
+            apiResponse.setMessage(message);
+            apiResponse.setData(body);
+            return apiResponse;
 
             return com.mgdev.om_paye.dto.response.ApiResponse.builder()
                     .succes(true)
                     .message(message)
                     .data(body)
                     .build();
+
         }
 
 
         String defaultMessage = messageSource.getMessage("success.default", null, "Opération réussie", Locale.getDefault());
-        return com.mgdev.om_paye.dto.response.ApiResponse.builder()
-                .succes(true)
-                .message(defaultMessage)
-                .data(body)
-                .build();
+        com.mgdev.om_paye.dto.response.ApiResponse<Object> defaultResponse = new com.mgdev.om_paye.dto.response.ApiResponse<>();
+        defaultResponse.setSucces(true);
+        defaultResponse.setMessage(defaultMessage);
+        defaultResponse.setData(body);
+        return defaultResponse;
     }
+    
 }

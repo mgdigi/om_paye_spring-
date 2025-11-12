@@ -117,6 +117,10 @@ public class TransactionSeeder implements CommandLineRunner {
     }
 
     private String generateReference() {
+
+        return "TXN" + System.nanoTime() + new Random().nextInt(1000);
+
         return "TXN" + System.currentTimeMillis() + new Random().nextInt(1000);
+
     }
 }

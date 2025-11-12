@@ -33,19 +33,9 @@ jwt:
   expiration: ${EXPIRATION:86400000}
   refresh_expiration: ${EXPIRATION_REFRESH:86400000}
 
-# logging:
-#   level:
-#     com.mgdev.om_paye: WARN
-#     org.springframework: WARN
+
 
 server:
   port: ${PORT:8080}
 
-# management:
-#   endpoints:
-#     web:
-#       exposure:
-#         include: health,info,metrics
-#   endpoint:
-#     health:
-#       show-details: never
+

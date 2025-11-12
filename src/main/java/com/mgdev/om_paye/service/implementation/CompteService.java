@@ -88,13 +88,13 @@ public class CompteService {
 
     public CompteResponseDto getCompteById(UUID id) {
         Compte compte = compteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Compte non trouvé"));
+                .orElseThrow(() -> new com.mgdev.om_paye.exception.ResourceNotFoundException("Compte", "id", id));
         return mapToResponseDto(compte);
     }
 
     public CompteResponseDto getCompteByNumero(String numeroCompte) {
         Compte compte = compteRepository.findByNumeroCompte(numeroCompte)
-                .orElseThrow(() -> new IllegalArgumentException("Compte non trouvé"));
+                .orElseThrow(() -> new com.mgdev.om_paye.exception.ResourceNotFoundException("Compte", "numeroCompte", numeroCompte));
         return mapToResponseDto(compte);
     }
 

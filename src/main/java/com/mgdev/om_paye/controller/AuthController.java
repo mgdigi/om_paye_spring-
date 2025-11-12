@@ -33,8 +33,23 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Connexion utilisateur", description = "Authentifie un utilisateur et retourne les tokens JWT")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequestDto request) {
+
+        User user;
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+         
+            user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+        } else if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()) {
+            
+            user = userRepository.findByPhoneNumber(request.getPhoneNumber())
+                    .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+        } else {
+            throw new IllegalArgumentException("Email ou numéro de téléphone requis");
+        }
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Mot de passe invalide");
@@ -42,9 +57,13 @@ public class AuthController {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().name());
+        claims.put("userId", user.getId());
 
-        String accessToken = jwtService.generateToken(user.getEmail(), claims);
-        String refreshToken = jwtService.generateRefreshToken(user.getEmail());
+      
+        String subject = user.getPhoneNumber();
+
+        String accessToken = jwtService.generateToken(subject, claims);
+        String refreshToken = jwtService.generateRefreshToken(subject);
 
         return ResponseEntity.ok(
                 AuthResponse.builder()

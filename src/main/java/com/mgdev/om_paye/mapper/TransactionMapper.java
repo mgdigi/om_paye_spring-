@@ -18,21 +18,21 @@ public interface TransactionMapper {
     @Mapping(target = "creationDate", source = "creationDate")
     TransactionResponseDto toDto(Transaction transaction);
 
-    @Mapping(target = "referenceTransaction", ignore = true) // Généré automatiquement
+    @Mapping(target = "referenceTransaction", ignore = true) 
     @Mapping(target = "montantTransaction", source = "montant")
-    @Mapping(target = "typeTransaction", ignore = true) // Défini dans le service
-    @Mapping(target = "status", ignore = true) // Défini dans le service
-    @Mapping(target = "frais", ignore = true) // Défini dans le service
-    @Mapping(target = "compteExpediteur", ignore = true) // Défini dans le service
-    @Mapping(target = "compteDestinataire", ignore = true) // Défini dans le service
+    @Mapping(target = "typeTransaction", ignore = true) 
+    @Mapping(target = "status", ignore = true) 
+    @Mapping(target = "frais", ignore = true) 
+    @Mapping(target = "compteExpediteur", ignore = true) 
+    @Mapping(target = "compteDestinataire", ignore = true) 
     Transaction transfertToEntity(TransfertRequestDto request);
 
-    @Mapping(target = "referenceTransaction", ignore = true) // Généré automatiquement
+    @Mapping(target = "referenceTransaction", ignore = true) 
     @Mapping(target = "montantTransaction", source = "montant")
-    @Mapping(target = "typeTransaction", ignore = true) // Défini dans le service
-    @Mapping(target = "status", ignore = true) // Défini dans le service
-    @Mapping(target = "frais", ignore = true) // Défini dans le service
-    @Mapping(target = "compteExpediteur", ignore = true) // Défini dans le service
-    @Mapping(target = "compteDestinataire", ignore = true) // Défini dans le service
+    @Mapping(target = "typeTransaction", ignore = true) 
+    @Mapping(target = "status", ignore = true) 
+    @Mapping(target = "frais", ignore = true) 
+    @Mapping(target = "compteExpediteur", ignore = true) 
+    @Mapping(target = "compteDestinataire", ignore = true) // Défini dans le servic
     Transaction paiementToEntity(PaiementRequestDto request);
 }

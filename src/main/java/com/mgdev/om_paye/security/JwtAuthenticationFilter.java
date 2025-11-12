@@ -1,10 +1,10 @@
 package com.mgdev.om_paye.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +13,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -22,10 +26,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    // Liste des endpoints à exclure du filtre JWT
+    private static final List<String> EXCLUDED_PATHS = Arrays.asList(
+        "/api/auth/",
+        "/api/otp/",
+        "/swagger-ui/",
+        "/v3/api-docs",
+        "/swagger-ui.html",
+        "/webjars/",
+        "/swagger-resources/",
+        "/configuration/",
+        "/favicon.ico"
+    );
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
@@ -36,13 +53,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        jwt = authHeader.substring(7);
+        jwt = authHeader.substring(7).trim().replaceAll("^\"+|\"+$", "");
         userEmail = jwtService.extractUsername(jwt);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
+            if (jwtService.isTokenValid(jwt, userEmail)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -54,5 +71,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Exclut les endpoints Swagger et d'authentification du filtre JWT
+     */
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return EXCLUDED_PATHS.stream().anyMatch(path::startsWith);
     }
 }

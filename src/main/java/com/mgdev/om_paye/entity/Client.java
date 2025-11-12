@@ -16,8 +16,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper=true)
 
 public class Client  extends User{
-
-    
     private String adresse;
     
 }

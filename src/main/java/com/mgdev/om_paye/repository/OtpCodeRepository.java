@@ -14,17 +14,17 @@ import com.mgdev.om_paye.entity.OtpCode;
 @Repository
 public interface OtpCodeRepository extends JpaRepository<OtpCode, java.util.UUID> {
 
-    Optional<OtpCode> findByEmailAndCodeAndUsedFalse(String email, String code);
+    Optional<OtpCode> findByPhoneNumberAndCodeAndUsedFalse(String phoneNumber, String code);
 
-    Optional<OtpCode> findFirstByEmailAndUsedFalseOrderByExpiresAtDesc(String email);
+    Optional<OtpCode> findFirstByPhoneNumberAndUsedFalseOrderByExpiresAtDesc(String phoneNumber);
 
     @Modifying
-    @Query("UPDATE OtpCode o SET o.used = true WHERE o.email = :email AND o.used = false")
-    void markAllAsUsedByEmail(@Param("email") String email);
+    @Query("UPDATE OtpCode o SET o.used = true WHERE o.phoneNumber = :phoneNumber AND o.used = false")
+    void markAllAsUsedByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
     @Modifying
     @Query("DELETE FROM OtpCode o WHERE o.expiresAt < :now")
     void deleteExpiredOtps(@Param("now") LocalDateTime now);
 
-    boolean existsByEmailAndUsedFalse(String email);
+    boolean existsByPhoneNumberAndUsedFalse(String phoneNumber);
 }

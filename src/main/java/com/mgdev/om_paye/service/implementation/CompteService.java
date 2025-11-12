@@ -39,7 +39,8 @@ public class CompteService {
     private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     public CompteResponseDto createCompte(CompteRequestDto request) {
-        // Validation des données d'entrée
+     
+
         compteValidator.validateCompte(request);
 
         User user;
@@ -62,7 +63,7 @@ public class CompteService {
                     .phoneNumber(request.getPhoneNumber())
                     .password(request.getPassword())
                     .role(UserRole.CLIENT)
-                    .status(UserStatus.ACTIVE)
+                    .status(UserStatus.PENDING) 
                     .build();
             user = userRepository.save(user);
         }
@@ -74,12 +75,12 @@ public class CompteService {
         compte.setTitulaireCompte(user.getName());
         compte.setSolde(BigDecimal.ZERO);
         compte.setTypeCompte(typeCompte);
-        compte.setStatus(CompteStatus.ACTIVE);
+        compte.setStatus(CompteStatus.PENDING);
         compte.setUser(user);
 
         Compte savedCompte = compteRepository.save(compte);
 
-        // Publier l'événement de création du compte
+      
         eventPublisher.publishEvent(new CompteCreatedEvent(this, savedCompte));
 
         return compteMapper.toDto(savedCompte);
@@ -87,13 +88,13 @@ public class CompteService {
 
     public CompteResponseDto getCompteById(UUID id) {
         Compte compte = compteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Compte non trouvé"));
+                .orElseThrow(() -> new com.mgdev.om_paye.exception.ResourceNotFoundException("Compte", "id", id));
         return mapToResponseDto(compte);
     }
 
     public CompteResponseDto getCompteByNumero(String numeroCompte) {
         Compte compte = compteRepository.findByNumeroCompte(numeroCompte)
-                .orElseThrow(() -> new IllegalArgumentException("Compte non trouvé"));
+                .orElseThrow(() -> new com.mgdev.om_paye.exception.ResourceNotFoundException("Compte", "numeroCompte", numeroCompte));
         return mapToResponseDto(compte);
     }
 
@@ -123,4 +124,5 @@ public class CompteService {
         dto.setSolde(calculateSolde(compte.getId()));
         return dto;
     }
+    
 }

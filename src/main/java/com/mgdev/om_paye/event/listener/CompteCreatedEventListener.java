@@ -21,10 +21,10 @@ public class CompteCreatedEventListener {
     @Async
     public void handleCompteCreated(CompteCreatedEvent event) {
         try {
-            log.info("Traitement de la création du compte pour l'utilisateur: {}", event.getCompte().getUser().getEmail());
+            log.info("Traitement de la création du compte pour l'utilisateur: {}", event.getCompte().getUser().getPhoneNumber());
 
-            // Envoyer un OTP de vérification par email
-            otpService.sendOtp(event.getCompte().getUser().getEmail());
+
+            otpService.sendOtp(event.getCompte().getUser().getPhoneNumber());
 
             log.info("OTP envoyé avec succès pour le compte: {}", event.getCompte().getNumeroCompte());
         } catch (Exception e) {

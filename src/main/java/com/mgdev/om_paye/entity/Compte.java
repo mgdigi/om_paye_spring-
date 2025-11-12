@@ -62,8 +62,6 @@ public class Compte extends AbstractEntity {
     @Builder.Default
     private CompteStatus status = CompteStatus.ACTIVE;
 
-    @Column(name = "code_marchand", length = 50)
-    private String codeMarchand;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

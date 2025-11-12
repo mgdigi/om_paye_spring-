@@ -1,52 +1,56 @@
 services:
   - type: web
     name: om-paye
-    env: java
+    env: docker
     region: oregon
     plan: free
     branch: main
+    autoDeploy: true
+
     buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -Xmx512m -Xms256m -jar target/om_pay-0.0.1-SNAPSHOT.jar
+    startCommand: java -Xmx512m -Xms256m -jar app.jar
     healthCheckPath: /actuator/health
+
     envVars:
-      
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8080
+
+      # --- Database ---
       - key: DATABASE_URL
         sync: false
-      - key: DATABASE_USERNAME
+      - key: DB_USERNAME
         sync: false
-      - key: DATABASE_PASSWORD
+      - key: DB_PASSWORD
         sync: false
-      
-      # Configuration JWT
+
+      # --- JWT ---
       - key: JWT_SECRET
         sync: false
       - key: JWT_EXPIRATION
         value: 86400000
-      
-      # Configuration Email (Brevo)
+
+      # --- Brevo ---
       - key: BREVO_API_KEY
         sync: false
       - key: MAIL_FROM_ADDRESS
         value: noreply@ompay.sn
       - key: MAIL_FROM_NAME
         value: OM Pay
-      
-      # Configuration Swagger
+
+      # --- Twilio ---
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+
+      # --- Swagger ---
       - key: SWAGGER_ENABLED
         value: true
       - key: SWAGGER_SERVER_PROD_URL
-        value: https://om-paye-1.onrender.com
+        value: https://om-paye.onrender.com
       - key: SWAGGER_SERVER_LOCAL_URL
-        value: http://localhost:5009
-      
-      # Profil Spring actif
-      - key: SPRING_PROFILES_ACTIVE
-        value: prod
-      
-      # Port du serveur (Render configure automatiquement)
-      - key: PORT
-        value: 8080
-      
-      # Configuration JVM
-      - key: JAVA_TOOL_OPTIONS
-        value: -Xmx512m -Xms256m
+        value: http://localhost:5029

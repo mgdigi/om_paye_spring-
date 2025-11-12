@@ -1,20 +1,41 @@
 package com.mgdev.om_paye.security;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Service;
-
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "32acefd1f7ef9770007ae5d6f08ac8548d8bee756dd8aee6c4f2650eae08a9f5187f0648d284d95d9369801bf5cdc00f29684062bcd296d85f793ea22cc84e2e";
-    private static final long EXPIRATION_TIME = 1000 * 60 * 15; 
-    private static final long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 24; 
+    private static String SECRET_KEY;
+
+    private static long EXPIRATION_TIME;
+
+    private static long REFRESH_EXPIRATION_TIME;
+
+    @Value("${jwt.secret}")
+    public void setSecretKey(String secretKey) {
+        SECRET_KEY = secretKey;
+    }
+
+    @Value("${jwt.expiration}")
+    public void setExpirationTime(long expirationTime) {
+        EXPIRATION_TIME = expirationTime;
+    }
+
+    @Value("${jwt.refresh_expiration}")
+    public void setRefreshExpirationTime(long refreshExpirationTime) {
+        REFRESH_EXPIRATION_TIME = refreshExpirationTime;
+    }
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +42,18 @@ public class TransactionService {
         // Validation des données d'entrée
         transactionValidator.validateTransfert(request);
 
-        Compte compteExpediteur = compteRepository.findByNumeroCompte(request.getNumeroCompteExpediteur())
-                .orElseThrow(() -> new IllegalArgumentException("Compte expéditeur non trouvé"));
+        // Récupérer l'utilisateur connecté depuis le contexte de sécurité
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userPhone = authentication.getName();
+        User userExpediteur = userRepository.findByPhoneNumber(userPhone)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+
+        // Récupérer le compte de l'utilisateur connecté (premier compte trouvé)
+        List<Compte> comptesExpediteur = compteRepository.findByUser(userExpediteur);
+        if (comptesExpediteur.isEmpty()) {
+            throw new IllegalArgumentException("L'utilisateur n'a pas de compte associé");
+        }
+        Compte compteExpediteur = comptesExpediteur.get(0);
 
         Compte compteDestinataire = findCompteByIdentifiant(request.getDestinataireIdentifiant());
 
@@ -63,14 +75,24 @@ public class TransactionService {
     }
 
     public TransactionResponseDto effectuerPaiement(PaiementRequestDto request) {
-        // Validation des données d'entrée
+
         transactionValidator.validatePaiement(request);
 
-        Compte compteClient = compteRepository.findByNumeroCompte(request.getNumeroCompteClient())
-                .orElseThrow(() -> new IllegalArgumentException("Compte client non trouvé"));
+        // Récupérer l'utilisateur connecté depuis le contexte de sécurité
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userPhone = authentication.getName();
+        User userClient = userRepository.findByPhoneNumber(userPhone)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
 
-        Compte compteMarchand = compteRepository.findByCodeMarchand(request.getCodeMarchand())
-                .orElseThrow(() -> new IllegalArgumentException("Code marchand invalide"));
+        // Récupérer le compte de l'utilisateur connecté (premier compte trouvé)
+        List<Compte> comptesClient = compteRepository.findByUser(userClient);
+        if (comptesClient.isEmpty()) {
+            throw new IllegalArgumentException("L'utilisateur n'a pas de compte associé");
+        }
+        Compte compteClient = comptesClient.get(0);
+
+        // Recherche du marchand par codeMarchand ou numéro de téléphone
+        Compte compteMarchand = findMarchandByIdentifiant(request.getDestinataireIdentifiant());
 
         BigDecimal soldeActuel = compteService.calculateSolde(compteClient.getId());
         if (soldeActuel.compareTo(request.getMontant()) < 0) {
@@ -119,7 +141,7 @@ public class TransactionService {
                 });
     }
 
-    // Générer une référence unique
+  
     private String generateReference() {
         return "TXN-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
@@ -127,5 +149,34 @@ public class TransactionService {
     private TransactionResponseDto mapToResponseDto(Transaction transaction) {
         TransactionResponseDto dto = transactionMapper.toDto(transaction);
         return dto;
+    }
+
+    
+    private Compte findMarchandByIdentifiant(String identifiant) {
+       
+        User marchand = userRepository.findAll().stream()
+                .filter(user -> user instanceof com.mgdev.om_paye.entity.Marchand)
+                .map(user -> (com.mgdev.om_paye.entity.Marchand) user)
+                .filter(m -> identifiant.equals(m.getCodeMarchand()))
+                .findFirst()
+                .orElse(null);
+
+        if (marchand != null) {
+            List<Compte> comptes = compteRepository.findByUser(marchand);
+            if (!comptes.isEmpty()) {
+                return comptes.get(0);
+            }
+        }
+
+      
+        marchand = userRepository.findByPhoneNumber(identifiant)
+                .filter(user -> user instanceof com.mgdev.om_paye.entity.Marchand)
+                .orElseThrow(() -> new IllegalArgumentException("Marchand introuvable avec cet identifiant"));
+
+        List<Compte> comptes = compteRepository.findByUser(marchand);
+        if (comptes.isEmpty()) {
+            throw new IllegalArgumentException("Le marchand n'a pas de compte associé");
+        }
+        return comptes.get(0);
     }
 }

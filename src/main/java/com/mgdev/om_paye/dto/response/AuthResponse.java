@@ -1,5 +1,9 @@
 package com.mgdev.om_paye.dto.response;
 
+import java.util.UUID;
+
+import com.mgdev.om_paye.enums.UserRole;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,7 +12,9 @@ import lombok.Data;
 
 public class AuthResponse {
 
-    private String accessToken;
+    private String token;
     private String refreshToken;
+    private UUID userId;
+    private UserRole role;
 
 }

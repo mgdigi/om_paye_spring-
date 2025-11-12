@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class OtpCode extends AbstractEntity {
 
-    @Column(name = "email", nullable = false, length = 100)
-    private String email;
+    @Column(name = "phone_number", nullable = false, length = 20)
+    private String phoneNumber;
 
     @Column(name = "code", nullable = false, length = 6)
     private String code;

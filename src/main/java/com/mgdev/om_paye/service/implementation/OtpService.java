@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mgdev.om_paye.entity.OtpCode;
 import com.mgdev.om_paye.repository.OtpCodeRepository;
 import com.mgdev.om_paye.service.EmailService;
+import com.mgdev.om_paye.service.SmsService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,22 +19,25 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class OtpService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OtpService.class);
+
     private final OtpCodeRepository otpCodeRepository;
     private final EmailService emailService;
+    private final SmsService smsService;
 
     private static final int OTP_LENGTH = 6;
     private static final int OTP_EXPIRATION_MINUTES = 5;
 
-    public void sendOtp(String email) {
-       
-        otpCodeRepository.markAllAsUsedByEmail(email);
+    public void sendOtp(String phoneNumber) {
 
-       
+        otpCodeRepository.markAllAsUsedByPhoneNumber(phoneNumber);
+
         String otpCode = generateOtpCode();
 
-     
+        logger.info("OTP généré pour le numéro {}: {}", phoneNumber, otpCode);
+
         OtpCode otp = OtpCode.builder()
-                .email(email)
+                .phoneNumber(phoneNumber)
                 .code(otpCode)
                 .expiresAt(LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES))
                 .used(false)
@@ -41,12 +45,12 @@ public class OtpService {
 
         otpCodeRepository.save(otp);
 
-    
-        emailService.sendOtpEmail(email, otpCode);
+        // Send OTP via SMS using Twilio
+        smsService.sendOtpSms(phoneNumber, otpCode);
     }
 
-    public boolean verifyOtp(String email, String code) {
-        return otpCodeRepository.findByEmailAndCodeAndUsedFalse(email, code)
+    public boolean verifyOtp(String phoneNumber, String code) {
+        return otpCodeRepository.findByPhoneNumberAndCodeAndUsedFalse(phoneNumber, code)
                 .map(otp -> {
                     if (otp.isValid()) {
                         otp.setUsed(true);
@@ -58,12 +62,12 @@ public class OtpService {
                 .orElse(false);
     }
 
-    public boolean hasActiveOtp(String email) {
-        return otpCodeRepository.existsByEmailAndUsedFalse(email);
+    public boolean hasActiveOtp(String phoneNumber) {
+        return otpCodeRepository.existsByPhoneNumberAndUsedFalse(phoneNumber);
     }
 
-    public OtpCode getLatestOtp(String email) {
-        return otpCodeRepository.findFirstByEmailAndUsedFalseOrderByExpiresAtDesc(email)
+    public OtpCode getLatestOtp(String phoneNumber) {
+        return otpCodeRepository.findFirstByPhoneNumberAndUsedFalseOrderByExpiresAtDesc(phoneNumber)
                 .orElse(null);
     }
 

@@ -24,8 +24,8 @@ public class TransactionValidator {
     public void validateTransfert(TransfertRequestDto request) {
         // Récupérer l'utilisateur connecté depuis le contexte de sécurité
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-        User userExpediteur = userRepository.findByEmail(userEmail)
+        String userPhone = authentication.getName();
+        User userExpediteur = userRepository.findByPhoneNumber(userPhone)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
 
         List<Compte> comptesExpediteur = compteRepository.findByUser(userExpediteur);
@@ -53,10 +53,10 @@ public class TransactionValidator {
     }
 
     public void validatePaiement(PaiementRequestDto request) {
-      
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-        User userClient = userRepository.findByEmail(userEmail)
+        String userPhone = authentication.getName();
+        User userClient = userRepository.findByPhoneNumber(userPhone)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
 
        

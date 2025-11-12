@@ -75,7 +75,7 @@ public class CompteSeeder implements CommandLineRunner {
             })
             .collect(java.util.stream.Collectors.toList());
 
-        // Sauvegarder tous les comptes
+    
         compteRepository.saveAll(comptesPersonnels);
         compteRepository.saveAll(comptesMarchands);
 
@@ -83,7 +83,7 @@ public class CompteSeeder implements CommandLineRunner {
         log.info("- {} comptes personnels créés", comptesPersonnels.size());
         log.info("- {} comptes marchands créés", comptesMarchands.size());
 
-        // Afficher les détails des comptes
+       
         comptesPersonnels.forEach(compte ->
             log.info("Compte Personnel: {} - Numéro: {} - Solde: {} FCFA",
                 compte.getTitulaireCompte(), compte.getNumeroCompte(), compte.getSolde())

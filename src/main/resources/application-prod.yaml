@@ -1,13 +1,13 @@
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://dpg-d3t28em3jp1c73a67vcg-a.oregon-postgres.render.com:5432/om_pay}
-    username: ${DB_USERNAME:postgrs_laravel_user}
-    password: ${DB_PASSWORD:XETg5QKcVQrtQULxpzwYWqpmXzKLyICw}
+    url: ${DATABASE_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -20,16 +20,16 @@ spring:
 
 brevo:
   api:
-    key: ${BREVO_API_KEY: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 }
+    key: ${BREVO_API_KEY}
     url: ${BREVO_URL:https://api.brevo.com/v3/smtp/email}
 
 twilio:
-  account-sid: ${TWILIO_ACCOUNT_SID:AC57ee32582f334c7740e2485daf03177b}
-  auth-token: ${TWILIO_AUTH_TOKEN:f1193dd9b58ed81af5cbfd0376530beb}
-  phone-number: ${TWILIO_PHONE_NUMBER:+18143268884}
+  account-sid: ${TWILIO_ACCOUNT_SID}
+  auth-token: ${TWILIO_AUTH_TOKEN}
+  phone-number: ${TWILIO_PHONE_NUMBER}
 
 jwt:
-  secret: ${JWT_SECRET:32acefd1f7ef9770007ae5d6f08ac8548d8bee756dd8aee6c4f2650eae08a9f5187f0648d284d95d9369801bf5cdc00f29684062bcd296d85f793ea22cc84e2e}
+  secret: ${JWT_SECRET}
   expiration: ${EXPIRATION:86400000}
   refresh_expiration: ${EXPIRATION_REFRESH:86400000}
 
@@ -39,7 +39,7 @@ jwt:
 #     org.springframework: WARN
 
 server:
-  port: ${PORT:5010}
+  port: ${PORT:8080}
 
 # management:
 #   endpoints:

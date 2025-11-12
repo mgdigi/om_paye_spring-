@@ -2,7 +2,7 @@ spring:
   application:
     name: om_paye
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   messages:
     basename: messages
     encoding: UTF-8
@@ -14,7 +14,7 @@ spring:
       matching-strategy: ant_path_matcher
 
 server:
-  port: 5029
+  port: ${PORT:5029}
 
 springdoc:
   api-docs:

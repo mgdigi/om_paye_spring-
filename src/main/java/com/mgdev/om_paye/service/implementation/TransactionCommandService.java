@@ -1,9 +1,7 @@
 package com.mgdev.om_paye.service.implementation;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +16,15 @@ import com.mgdev.om_paye.entity.Transaction;
 import com.mgdev.om_paye.entity.User;
 import com.mgdev.om_paye.enums.TransactionStatus;
 import com.mgdev.om_paye.enums.TypeTransaction;
+import com.mgdev.om_paye.exception.InsufficientBalanceException;
+import com.mgdev.om_paye.exception.RecipientNotFoundException;
+import com.mgdev.om_paye.exception.UserHasNoAccountException;
+import com.mgdev.om_paye.exception.UserNotFoundException;
 import com.mgdev.om_paye.mapper.TransactionMapper;
 import com.mgdev.om_paye.repository.CompteRepository;
 import com.mgdev.om_paye.repository.TransactionRepository;
 import com.mgdev.om_paye.repository.UserRepository;
+import com.mgdev.om_paye.service.ITransactionCommandService;
 import com.mgdev.om_paye.validators.TransactionValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class TransactionService {
+public class TransactionCommandService implements ITransactionCommandService {
 
     private final TransactionRepository transactionRepository;
     private final CompteRepository compteRepository;
@@ -38,28 +41,17 @@ public class TransactionService {
     private final TransactionMapper transactionMapper;
     private final TransactionValidator transactionValidator;
 
+    @Override
     public TransactionResponseDto effectuerTransfert(TransfertRequestDto request) {
-        
         transactionValidator.validateTransfert(request);
 
-       
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userPhone = authentication.getName();
-        User userExpediteur = userRepository.findByPhoneNumber(userPhone)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
-
-      
-        List<Compte> comptesExpediteur = compteRepository.findByUser(userExpediteur);
-        if (comptesExpediteur.isEmpty()) {
-            throw new IllegalArgumentException("L'utilisateur n'a pas de compte associé");
-        }
-        Compte compteExpediteur = comptesExpediteur.get(0);
-
+        User userExpediteur = getCurrentUser();
+        Compte compteExpediteur = getUserAccount(userExpediteur);
         Compte compteDestinataire = findCompteByIdentifiant(request.getDestinataireIdentifiant());
 
         BigDecimal soldeActuel = compteService.calculateSolde(compteExpediteur.getId());
         if (soldeActuel.compareTo(request.getMontant()) < 0) {
-            throw new IllegalStateException("Solde insuffisant. Solde actuel: " + soldeActuel);
+            throw new InsufficientBalanceException(soldeActuel, request.getMontant());
         }
 
         Transaction transaction = transactionMapper.transfertToEntity(request);
@@ -74,29 +66,17 @@ public class TransactionService {
         return transactionMapper.toDto(savedTransaction);
     }
 
+    @Override
     public TransactionResponseDto effectuerPaiement(PaiementRequestDto request) {
-
         transactionValidator.validatePaiement(request);
 
-        // Récupérer l'utilisateur connecté depuis le contexte de sécurité
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userPhone = authentication.getName();
-        User userClient = userRepository.findByPhoneNumber(userPhone)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
-
-        // Récupérer le compte de l'utilisateur connecté (premier compte trouvé)
-        List<Compte> comptesClient = compteRepository.findByUser(userClient);
-        if (comptesClient.isEmpty()) {
-            throw new IllegalArgumentException("L'utilisateur n'a pas de compte associé");
-        }
-        Compte compteClient = comptesClient.get(0);
-
-        // Recherche du marchand par codeMarchand ou numéro de téléphone
+        User userClient = getCurrentUser();
+        Compte compteClient = getUserAccount(userClient);
         Compte compteMarchand = findMarchandByIdentifiant(request.getDestinataireIdentifiant());
 
         BigDecimal soldeActuel = compteService.calculateSolde(compteClient.getId());
         if (soldeActuel.compareTo(request.getMontant()) < 0) {
-            throw new IllegalStateException("Solde insuffisant. Solde actuel: " + soldeActuel);
+            throw new InsufficientBalanceException(soldeActuel, request.getMontant());
         }
 
         Transaction transaction = transactionMapper.paiementToEntity(request);
@@ -111,68 +91,35 @@ public class TransactionService {
         return transactionMapper.toDto(savedTransaction);
     }
 
-  
-    public List<TransactionResponseDto> getTransactionsByCompte(UUID compteId) {
-        Compte compte = compteRepository.findById(compteId)
-                .orElseThrow(() -> new IllegalArgumentException("Compte non trouvé"));
-
-        return transactionRepository
-                .findByCompteExpediteurOrCompteDestinataire(compte, compte)
-                .stream()
-                .map(this::mapToResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<TransactionResponseDto> getMyTransactions(TypeTransaction type) {
+    private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userPhone = authentication.getName();
-        User user = userRepository.findByPhoneNumber(userPhone)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
-
-        List<Compte> comptes = compteRepository.findByUser(user);
-        if (comptes.isEmpty()) {
-            throw new IllegalArgumentException("L'utilisateur n'a pas de compte associé");
-        }
-        Compte compte = comptes.get(0);
-
-        return transactionRepository
-                .findByCompteAndType(compte, type)
-                .stream()
-                .map(this::mapToResponseDto)
-                .collect(Collectors.toList());
+        String subject = authentication.getName();
+        return userRepository.findByPhoneNumber(subject)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
     }
 
-   
+    private Compte getUserAccount(User user) {
+        return compteRepository.findByUser(user).stream()
+                .findFirst()
+                .orElseThrow(() -> new UserHasNoAccountException("L'utilisateur n'a pas de compte associé"));
+    }
+
     private Compte findCompteByIdentifiant(String identifiant) {
-        
         return compteRepository.findByNumeroCompte(identifiant)
                 .orElseGet(() -> {
-                   
                     User user = userRepository.findByPhoneNumber(identifiant)
-                            .orElseThrow(() -> new IllegalArgumentException(
-                                    "Aucun compte trouvé avec cet identifiant"));
-                    
-                    List<Compte> comptes = compteRepository.findByUser(user);
-                    if (comptes.isEmpty()) {
-                        throw new IllegalArgumentException("L'utilisateur n'a pas de compte");
-                    }
-                    return comptes.get(0);  
+                            .orElseThrow(() -> new RecipientNotFoundException("Destinataire introuvable"));
+                    return compteRepository.findByUser(user).stream()
+                            .findFirst()
+                            .orElseThrow(() -> new RecipientNotFoundException("Le destinataire n'a pas de compte"));
                 });
     }
 
-  
     private String generateReference() {
         return "TXN-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    private TransactionResponseDto mapToResponseDto(Transaction transaction) {
-        TransactionResponseDto dto = transactionMapper.toDto(transaction);
-        return dto;
-    }
-
-    
     private Compte findMarchandByIdentifiant(String identifiant) {
-       
         User marchand = userRepository.findAll().stream()
                 .filter(user -> user instanceof com.mgdev.om_paye.entity.Marchand)
                 .map(user -> (com.mgdev.om_paye.entity.Marchand) user)
@@ -181,21 +128,17 @@ public class TransactionService {
                 .orElse(null);
 
         if (marchand != null) {
-            List<Compte> comptes = compteRepository.findByUser(marchand);
-            if (!comptes.isEmpty()) {
-                return comptes.get(0);
-            }
+            return compteRepository.findByUser(marchand).stream()
+                    .findFirst()
+                    .orElseThrow(() -> new RecipientNotFoundException("Le marchand n'a pas de compte associé"));
         }
 
-      
         marchand = userRepository.findByPhoneNumber(identifiant)
                 .filter(user -> user instanceof com.mgdev.om_paye.entity.Marchand)
-                .orElseThrow(() -> new IllegalArgumentException("Marchand introuvable avec cet identifiant"));
+                .orElseThrow(() -> new RecipientNotFoundException("Marchand introuvable avec cet identifiant"));
 
-        List<Compte> comptes = compteRepository.findByUser(marchand);
-        if (comptes.isEmpty()) {
-            throw new IllegalArgumentException("Le marchand n'a pas de compte associé");
-        }
-        return comptes.get(0);
+        return compteRepository.findByUser(marchand).stream()
+                .findFirst()
+                .orElseThrow(() -> new RecipientNotFoundException("Le marchand n'a pas de compte associé"));
     }
 }

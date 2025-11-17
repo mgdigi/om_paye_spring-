@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mgdev.om_paye.dto.request.PaiementRequestDto;
 import com.mgdev.om_paye.dto.request.TransfertRequestDto;
 import com.mgdev.om_paye.dto.response.TransactionResponseDto;
-import com.mgdev.om_paye.service.implementation.TransactionService;
+import com.mgdev.om_paye.service.ITransactionCommandService;
+import com.mgdev.om_paye.service.ITransactionQueryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,7 +34,8 @@ import lombok.RequiredArgsConstructor;
 @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class TransactionController {
 
-    private final TransactionService transactionService;
+    private final ITransactionCommandService transactionCommandService;
+    private final ITransactionQueryService transactionQueryService;
 
     @PostMapping("/transfert")
     @com.mgdev.om_paye.controller.interceptor.annotation.ApiResponse(messageKey = "transaction.transfert.created")
@@ -60,7 +62,7 @@ public class TransactionController {
                         }
                         """)))
             @RequestBody TransfertRequestDto request) {
-        TransactionResponseDto response = transactionService.effectuerTransfert(request);
+        TransactionResponseDto response = transactionCommandService.effectuerTransfert(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -98,7 +100,7 @@ public class TransactionController {
                             """)
                     }))
             @RequestBody PaiementRequestDto request) {
-        TransactionResponseDto response = transactionService.effectuerPaiement(request);
+        TransactionResponseDto response = transactionCommandService.effectuerPaiement(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -117,7 +119,7 @@ public class TransactionController {
             @Parameter(description = "ID du compte", required = true, example = "123e4567-e89b-12d3-a456-426614174000")
             @PathVariable UUID compteId) {
         List<TransactionResponseDto> transactions =
-                transactionService.getTransactionsByCompte(compteId);
+                transactionQueryService.getTransactionsByCompte(compteId);
         return ResponseEntity.ok(transactions);
     }
 }

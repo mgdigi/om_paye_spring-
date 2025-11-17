@@ -33,7 +33,7 @@ public class TwilioSmsService implements SmsService {
     @Override
     public void sendOtpSms(String phoneNumber, String otpCode) {
         try {
-            // Format the phone number to international format if needed
+            
             String formattedPhoneNumber = formatPhoneNumber(phoneNumber);
 
             Message message = Message.creator(
@@ -45,21 +45,20 @@ public class TwilioSmsService implements SmsService {
             log.info("OTP SMS sent successfully to {} with SID: {}", phoneNumber, message.getSid());
         } catch (Exception e) {
             log.error("Failed to send OTP SMS to {}: {}", phoneNumber, e.getMessage(), e);
-            // Ne pas lancer d'exception pour ne pas bloquer la création du compte
-            // L'OTP sera affiché dans les logs du service OtpService
+            
         }
     }
 
     private String formatPhoneNumber(String phoneNumber) {
-        // Remove any spaces, dashes, or other non-numeric characters
+        
         String cleaned = phoneNumber.replaceAll("[^\\d]", "");
 
-        // If it starts with 0, replace with +221 (Senegal country code)
+       
         if (cleaned.startsWith("0")) {
             return "+221" + cleaned.substring(1);
         }
 
-        // If it doesn't start with +, add Senegal country code
+        
         if (!cleaned.startsWith("+")) {
             return "+221" + cleaned;
         }

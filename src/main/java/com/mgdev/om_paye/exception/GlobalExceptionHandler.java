@@ -54,6 +54,50 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUserNotFoundException(UserNotFoundException ex) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setSucces(false);
+        response.setMessage(ex.getMessage());
+        response.setData(null);
+        response.setPagination(null);
+        response.setLinks(null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(UserHasNoAccountException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUserHasNoAccountException(UserHasNoAccountException ex) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setSucces(false);
+        response.setMessage(ex.getMessage());
+        response.setData(null);
+        response.setPagination(null);
+        response.setLinks(null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInsufficientBalanceException(InsufficientBalanceException ex) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setSucces(false);
+        response.setMessage(ex.getMessage());
+        response.setData(null);
+        response.setPagination(null);
+        response.setLinks(null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(RecipientNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRecipientNotFoundException(RecipientNotFoundException ex) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setSucces(false);
+        response.setMessage(ex.getMessage());
+        response.setData(null);
+        response.setPagination(null);
+        response.setLinks(null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGenericException(Exception ex) {
         ApiResponse<Object> response = new ApiResponse<>();

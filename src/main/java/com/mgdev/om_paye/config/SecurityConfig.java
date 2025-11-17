@@ -31,7 +31,7 @@ public class SecurityConfig {
             .cors(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/otp/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/configuration/**", "/favicon.ico").permitAll()
-                .requestMatchers("/api/comptes/**", "/api/transactions/**").hasAnyRole("ADMIN", "CLIENT", "MARCHAND")
+                .requestMatchers("/api/comptes/solde","/api/comptes/transactions",  "/api/transactions/**").hasAnyRole("ADMIN", "CLIENT", "MARCHAND")
                 .anyRequest().permitAll()
             )
             .exceptionHandling(exception -> exception

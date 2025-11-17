@@ -6,9 +6,6 @@ pipeline {
     }
 
     stages {
-
-
-
         stage('Build Docker image') {
             steps {
                 sh 'docker build -t $DOCKERHUB_REPO:latest .'

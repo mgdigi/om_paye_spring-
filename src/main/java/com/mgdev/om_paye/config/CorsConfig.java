@@ -21,7 +21,8 @@ public class CorsConfig {
         
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:5029", 
-            "http://localhost:5030"
+            "http://localhost:5030",
+            "https://ompaye-spring.onrender.com/"
         ));
         
     
@@ -29,7 +30,7 @@ public class CorsConfig {
             "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
         
-        // Headers autorisés
+
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization", "Content-Type", "Accept"
         ));

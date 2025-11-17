@@ -18,8 +18,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,16 +35,16 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Compte extends AbstractEntity {
     
-    @NotBlank(message = "Le numéro de compte est obligatoire")
-    @Column(name = "numero_compte", nullable = false, unique = true, length = 50)
+    // @NotBlank(message = "Le numéro de compte est obligatoire")
+    // @Column(name = "numero_compte", nullable = false, unique = true, length = 50)
     private String numeroCompte;
     
-    @NotBlank(message = "Le titulaire du compte est obligatoire")
-    @Column(name = "titulaire_compte", nullable = false, length = 100)
+    // @NotBlank(message = "Le titulaire du compte est obligatoire")
+    // @Column(name = "titulaire_compte", nullable = false, length = 100)
     private String titulaireCompte;
     
-    @DecimalMin(value = "0.0", message = "Le solde ne peut pas être négatif")
-    @Column(nullable = false, precision = 15, scale = 2)
+    // @DecimalMin(value = "0.0", message = "Le solde ne peut pas être négatif")
+    // @Column(nullable = false, precision = 15, scale = 2)
     @Builder.Default
     private BigDecimal solde = BigDecimal.ZERO;
     

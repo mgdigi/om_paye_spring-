@@ -51,7 +51,8 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
             returnTypeClass.equals(Boolean.class) ||
             returnTypeClass.equals(java.math.BigDecimal.class) ||
             returnTypeClass.equals(java.util.List.class) ||
-            returnTypeClass.equals(java.util.Map.class)) {
+            returnTypeClass.equals(java.util.Map.class) ||
+            returnTypeClass.equals(com.mgdev.om_paye.dto.response.SoldeResponseDto.class)) {
             return false;
         }
 

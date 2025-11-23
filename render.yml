@@ -35,7 +35,7 @@ services:
       - key: SWAGGER_ENABLED
         value: true
       - key: SWAGGER_SERVER_PROD_URL
-        value: https://om-paye-1.onrender.com
+        value: https://ompaye-spring.onrender.com
       - key: SWAGGER_SERVER_LOCAL_URL
         value: http://localhost:5009
       

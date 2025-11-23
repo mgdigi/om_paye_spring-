@@ -32,7 +32,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme.Type;
     ),
     servers = {
         @Server(url = "http://localhost:5029", description = "Serveur de développement"),
-        @Server(url = "https://om-paye-spring.onrender.com", description = "Serveur de production")
+        @Server(url = "https://ompaye-spring.onrender.com", description = "Serveur de production")
     },
     security = @SecurityRequirement(name = "bearerAuth")
 )

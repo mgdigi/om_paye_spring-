@@ -22,7 +22,7 @@ public class CorsConfig {
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:5029", 
             "http://localhost:5030",
-            "https://ompaye-spring.onrender.com/"
+            "https://ompaye-spring.onrender.com"
         ));
         
     

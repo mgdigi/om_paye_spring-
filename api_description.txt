@@ -1,0 +1,134 @@
+DESCRIPTION DE L'API OM PAYE
+
+Cette API REST permet de gérer un système de paiement mobile similaire à Orange Money. Elle offre des fonctionnalités d'authentification, de gestion des comptes, et de transactions (transferts et paiements).
+
+BASE URL: /api
+
+AUTHENTIFICATION:
+Tous les endpoints nécessitent une authentification JWT via le header Authorization: Bearer <token>, sauf ceux marqués comme publics.
+
+================================================================================
+CONTROLEUR AUTHENTIFICATION (/api/auth)
+================================================================================
+
+1. POST /api/auth/login
+   Description: Authentifie un utilisateur et retourne les tokens JWT
+   Entrée (LoginRequestDto):
+   - phoneNumber: String (optionnel si email fourni)
+   - password: String (requis)
+   Sortie (AuthResponse):
+   - token: String (token d'accès JWT)
+   - refreshToken: String (token de rafraîchissement)
+   - userId: UUID (ID de l'utilisateur)
+   - role: UserRole (rôle de l'utilisateur: ADMIN, CLIENT, MARCHAND)
+
+================================================================================
+CONTROLEUR OTP (/api/otp)
+================================================================================
+
+1. POST /api/otp/verify
+   Description: Vérifie la validité d'un code OTP pour un numéro de téléphone donné et active le compte
+   Entrée (OtpVerificationRequestDto):
+   - phoneNumber: String (numéro de téléphone)
+   - code: String (code OTP)
+   Sortie (AuthResponse si valide):
+   - token: String
+   - refreshToken: String
+   - userId: UUID
+   - role: UserRole
+   Note: Active l'utilisateur et ses comptes si le code est valide
+
+================================================================================
+CONTROLEUR COMPTES (/api/comptes)
+================================================================================
+
+
+2. GET /api/comptes/solde
+   Description: Retourne le solde actuel du compte de l'utilisateur connecté avec ses informations
+   Entrée: Aucune (utilise le token JWT)
+   Sortie (SoldeResponseDto):
+   - nomUtilisateur: String
+   - numeroCompte: String
+   - solde: BigDecimal
+
+3. GET /api/comptes/transactions
+   Description: Retourne l'historique des transactions du compte de l'utilisateur connecté avec possibilité de filtrer par type
+   Paramètres de requête:
+   - type: TypeTransaction (optionnel - TRANSFERT, PAIEMENT)
+   Sortie: List<TransactionResponseDto>
+   Chaque TransactionResponseDto contient:
+   - id: UUID
+   - referenceTransaction: String
+   - montantTransaction: BigDecimal
+   - typeTransaction: TypeTransaction
+   - status: TransactionStatus
+   - description: String
+   - frais: BigDecimal
+   - numeroCompteExpediteur: String
+   - numeroCompteDestinataire: String
+   - creationDate: Instant
+
+================================================================================
+CONTROLEUR TRANSACTIONS (/api/transactions)
+================================================================================
+
+1. POST /api/transactions/transfert
+   Description: Transfère de l'argent du compte de l'utilisateur connecté vers un autre compte
+   Entrée (TransfertRequestDto):
+   - destinataireIdentifiant: String (numéro de téléphone ou numéro de compte du destinataire, requis)
+   - montant: BigDecimal (montant valide, requis)
+   - description: String (optionnel)
+   Sortie (TransactionResponseDto):
+   - id: UUID
+   - referenceTransaction: String
+   - montantTransaction: BigDecimal
+   - typeTransaction: TypeTransaction (TRANSFERT)
+   - status: TransactionStatus
+   - description: String
+   - frais: BigDecimal
+   - numeroCompteExpediteur: String
+   - numeroCompteDestinataire: String
+   - creationDate: Instant
+
+2. POST /api/transactions/paiement
+   Description: Effectue un paiement du compte de l'utilisateur connecté vers un marchand
+   Entrée (PaiementRequestDto):
+   - destinataireIdentifiant: String (numéro de téléphone ou code marchand du destinataire, requis)
+   - montant: BigDecimal (montant valide, requis)
+   - description: String (optionnel)
+   Sortie (TransactionResponseDto):
+   - Même structure que pour le transfert, avec typeTransaction = PAIEMENT
+
+3. GET /api/transactions/compte/{compteId}
+   Description: Retourne l'historique complet des transactions (transferts et paiements) d'un compte spécifique
+   Paramètre de chemin:
+   - compteId: UUID (ID du compte, requis)
+   Sortie: List<TransactionResponseDto>
+
+================================================================================
+CODES DE RÉPONSE HTTP COURANTS
+================================================================================
+
+- 200: Succès (GET)
+- 201: Créé (POST)
+- 400: Données invalides ou solde insuffisant
+- 401: Utilisateur non authentifié
+- 404: Ressource introuvable (utilisateur, compte, destinataire)
+
+================================================================================
+TYPES ÉNUMÉRÉS
+================================================================================
+
+UserRole: ADMIN, CLIENT, MARCHAND
+TypeCompte: COURANT, EPARGNE
+CompteStatus: ACTIVE, INACTIVE, BLOCKED
+TypeTransaction: TRANSFERT, PAIEMENT
+TransactionStatus: PENDING, COMPLETED, FAILED, CANCELLED
+
+================================================================================
+VALIDATIONS
+================================================================================
+
+
+- Amount: Doit être positif et dans les limites autorisées
+- Password: Requis pour l'authentification
